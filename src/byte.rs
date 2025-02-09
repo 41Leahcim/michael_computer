@@ -1,49 +1,59 @@
+//! Contains the byte datatype with gates.
+
 use std::array;
 
 use crate::bit::Bit;
 
+/// The byte datatype is the smallest datatype a pointer can point to
 #[derive(Debug, Clone, Copy)]
 pub struct Byte {
     bits: [Bit; 8],
 }
 
 impl Byte {
+    /// Applies the `Bit::nand` function on the bits of both bytes
     pub fn nand(&self, other: &Self) -> Self {
         Self {
             bits: array::from_fn(|index| self.bits[index].nand(other.bits[index])),
         }
     }
 
+    /// Inverts the byte
     pub fn not(&self) -> Self {
         Self {
             bits: array::from_fn(|index| self.bits[index].not()),
         }
     }
 
+    /// Applies the `Bit::and` function on the bits of both bytes
     pub fn and(&self, other: &Self) -> Self {
         Self {
             bits: array::from_fn(|index| self.bits[index].and(other.bits[index])),
         }
     }
 
+    /// Applies the `Bit::or` function on the bits of both bytes
     pub fn or(&self, other: &Self) -> Self {
         Self {
             bits: array::from_fn(|index| self.bits[index].or(other.bits[index])),
         }
     }
 
+    /// Applies the `Bit::nor` function on the bits of both bytes
     pub fn nor(&self, other: &Self) -> Self {
         Self {
             bits: array::from_fn(|index| self.bits[index].nor(other.bits[index])),
         }
     }
 
+    /// Applies the `Bit::xnor` function on the bits of both bytes
     pub fn xnor(&self, other: &Self) -> Self {
         Self {
             bits: array::from_fn(|index| self.bits[index].xnor(other.bits[index])),
         }
     }
 
+    /// Applies the `Bit::xor` function on the bits of both bytes
     pub fn xor(&self, other: &Self) -> Self {
         Self {
             bits: array::from_fn(|index| self.bits[index].xor(other.bits[index])),

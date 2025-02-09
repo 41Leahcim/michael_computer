@@ -1,12 +1,19 @@
+//! This module contains the bit datatype with gates.
+
 use std::ops::{BitAnd, BitAndAssign, BitOr, BitOrAssign, BitXor, BitXorAssign, Not};
 
+/// The most primitive datatype, all other data types use this datatype.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Bit {
+    /// Logical 0, boolean false
     Low,
+
+    /// Logical 1, boolean true
     High,
 }
 
 impl Bit {
+    /// The most primitive gate of this library, all other gates and circuits use this
     pub const fn nand(self, other: Self) -> Self {
         if matches!((self, other), (Self::High, Self::High)) {
             Self::Low
@@ -15,26 +22,32 @@ impl Bit {
         }
     }
 
+    /// Inverts the bit
     pub const fn not(self) -> Self {
         self.nand(self)
     }
 
+    /// Returns `Bit::High` if both bits are high
     pub const fn and(self, other: Self) -> Self {
         self.nand(other).not()
     }
 
+    /// Returns `Bit::High` if either or both bits are high
     pub const fn or(self, other: Self) -> Self {
         self.not().nand(other.not())
     }
 
+    /// Returns `Bit::High` if neither bit is heigh
     pub const fn nor(self, other: Self) -> Self {
         self.or(other).not()
     }
 
+    /// Returns `Bit::High` if none or both bits are high
     pub const fn xnor(self, other: Self) -> Self {
         self.nand(other).nand(self.or(other))
     }
 
+    /// Returns `Bit::High` if either but not both bits are high
     pub const fn xor(self, other: Self) -> Self {
         self.xnor(other).not()
     }
