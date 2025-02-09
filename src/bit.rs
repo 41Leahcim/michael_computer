@@ -8,10 +8,10 @@ pub enum Bit {
 
 impl Bit {
     pub const fn nand(self, other: Self) -> Self {
-        if !matches!((self, other), (Self::High, Self::High)) {
-            Self::High
-        } else {
+        if matches!((self, other), (Self::High, Self::High)) {
             Self::Low
+        } else {
+            Self::High
         }
     }
 

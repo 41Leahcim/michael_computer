@@ -66,7 +66,7 @@ impl From<Byte> for u8 {
             .into_iter()
             .enumerate()
             .fold(0, |result, (i, bit)| {
-                result | (u8::from(bool::from(bit)) << i)
+                result | (Self::from(bool::from(bit)) << i)
             })
     }
 }
