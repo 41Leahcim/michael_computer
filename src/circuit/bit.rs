@@ -69,6 +69,51 @@ pub const fn dmux(input: Bit, select: Bit) -> (Bit, Bit) {
     (input.and(select.not()), input.and(select))
 }
 
+/// Returns input bit as selected bit.
+/// Other bits will be `Bit::Low`.
+/// select[0] is 1, every next index is twice as high as the previous.
+pub fn dmux4(input: Bit, select: [Bit; 2]) -> [Bit; 4] {
+    array::from_fn(|i| {
+        Bit::from(
+            select
+                .iter()
+                .enumerate()
+                .all(|(j, bit)| &Bit::from((i >> j) & 1 == 1) == bit),
+        )
+        .and(input)
+    })
+}
+
+/// Returns input bit as selected bit.
+/// Other bits will be `Bit::Low`.
+/// select[0] is 1, every next index is twice as high as the previous.
+pub fn dmux16(input: Bit, select: [Bit; 4]) -> [Bit; 16] {
+    array::from_fn(|i| {
+        Bit::from(
+            select
+                .iter()
+                .enumerate()
+                .all(|(j, bit)| &Bit::from((i >> j) & 1 == 1) == bit),
+        )
+        .and(input)
+    })
+}
+
+/// Returns input bit as selected bit.
+/// Other bits will be `Bit::Low`.
+/// select[0] is 1, every next index is twice as high as the previous.
+pub fn dmux256(input: Bit, select: [Bit; 8]) -> [Bit; 256] {
+    array::from_fn(|i| {
+        Bit::from(
+            select
+                .iter()
+                .enumerate()
+                .all(|(j, bit)| &Bit::from((i >> j) & 1 == 1) == bit),
+        )
+        .and(input)
+    })
+}
+
 #[cfg(test)]
 mod tests {
     use super::{full_adder, half_adder};
