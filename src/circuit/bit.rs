@@ -1,6 +1,6 @@
 //! Circuits interacting on bits
 
-use std::array;
+use core::array;
 
 use crate::bit::Bit;
 

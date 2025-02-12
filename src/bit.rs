@@ -1,6 +1,6 @@
 //! This module contains the bit datatype with gates.
 
-use std::ops::{BitAnd, BitAndAssign, BitOr, BitOrAssign, BitXor, BitXorAssign, Not};
+use core::ops::{BitAnd, BitAndAssign, BitOr, BitOrAssign, BitXor, BitXorAssign, Not};
 
 /// The most primitive datatype, all other data types use this datatype.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

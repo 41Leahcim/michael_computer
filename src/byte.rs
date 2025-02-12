@@ -1,6 +1,6 @@
 //! Contains the byte datatype with gates.
 
-use std::array;
+use core::array;
 
 use crate::bit::Bit;
 
