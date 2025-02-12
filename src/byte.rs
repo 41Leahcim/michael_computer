@@ -81,6 +81,18 @@ impl From<Byte> for u8 {
     }
 }
 
+impl From<[Bit; 8]> for Byte {
+    fn from(bits: [Bit; 8]) -> Self {
+        Self { bits }
+    }
+}
+
+impl From<Byte> for [Bit; 8] {
+    fn from(value: Byte) -> Self {
+        value.bits
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use crate::byte::Byte;
