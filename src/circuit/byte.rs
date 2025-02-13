@@ -4,7 +4,7 @@ use core::array;
 
 use crate::{bit::Bit, byte::Byte};
 
-use super::bit::full_adder;
+use super::bit::{full_adder, mux as bit_mux};
 
 /// Adds 2 bytes and the carry bit
 pub fn byte_add_with_carry(left: Byte, right: Byte, mut carry: Bit) -> (Byte, Bit) {
@@ -37,6 +37,54 @@ pub fn byte_sub_with_carry(mut left: Byte, right: Byte, mut carry: Bit) -> (Byte
     (left, carry) = byte_sub(left, Byte::from(carry_byte));
     let (result, carry2) = byte_sub(left, right);
     (result, carry.or(carry2))
+}
+
+/// Returns the left byte if `select` is `Bit::Low`, returns right byte otherwise
+pub fn mux(left: Byte, right: Byte, select: Bit) -> Byte {
+    let left: [Bit; 8] = left.into();
+    let right: [Bit; 8] = right.into();
+    Byte::from(array::from_fn(|i| bit_mux(left[i], right[i], select)))
+}
+
+/// `select[0]` adds 1 to the index if `Bit::High`.
+/// `select[1]` adds 2 to the index if `Bit::High`.
+/// Returns the byte at the resulting index.
+pub fn mux4(input: [Byte; 4], select: [Bit; 2]) -> Byte {
+    mux(
+        mux(input[0], input[1], select[0]),
+        mux(input[2], input[3], select[0]),
+        select[1],
+    )
+}
+
+/// Every select bit adds (1 << index) if `Bit::High`.
+/// Returns the byte at the resulting index
+#[expect(clippy::missing_panics_doc)]
+pub fn mux16(input: [Byte; 16], select: [Bit; 4]) -> Byte {
+    mux4(
+        array::from_fn(|i| {
+            mux4(
+                input[i * 4..i * 4 + 4].try_into().unwrap(),
+                select[..2].try_into().unwrap(),
+            )
+        }),
+        select[2..4].try_into().unwrap(),
+    )
+}
+
+/// Every select bit adds (1 << index) if `Bit::High`.
+/// Returns the byte at the resulting index
+#[expect(clippy::missing_panics_doc)]
+pub fn mux256(input: [Byte; 256], select: [Bit; 8]) -> Byte {
+    mux16(
+        array::from_fn(|i| {
+            mux16(
+                input[i * 16..i * 16 + 16].try_into().unwrap(),
+                select[..4].try_into().unwrap(),
+            )
+        }),
+        select[4..8].try_into().unwrap(),
+    )
 }
 
 #[cfg(test)]

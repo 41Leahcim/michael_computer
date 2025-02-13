@@ -51,7 +51,7 @@ pub fn mux16(input: [Bit; 16], select: [Bit; 4]) -> Bit {
 /// Every select bit adds (1 << index) if `Bit::High`.
 /// Returns the bit at the resulting index
 #[expect(clippy::missing_panics_doc)]
-pub fn mux256(input: [Bit; 256], select: [Bit; 16]) -> Bit {
+pub fn mux256(input: [Bit; 256], select: [Bit; 8]) -> Bit {
     mux16(
         array::from_fn(|i| {
             mux16(
