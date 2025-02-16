@@ -1,7 +1,6 @@
 0000 00RT: Load constant
 0000 01RT: Load memory
-0000 10RF: Store constant
-0000 11RF: store memory
+0000 10RF: store memory
 0001 RTRF: Move between registers
 0010 RTRF: Nand
 0011 RTRF: And
