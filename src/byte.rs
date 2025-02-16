@@ -1,8 +1,11 @@
 //! Contains the byte datatype with gates.
 
-use core::array;
+use core::{
+    array,
+    ops::{Add, Sub},
+};
 
-use crate::bit::Bit;
+use crate::{bit::Bit, circuit::bit::full_adder};
 
 /// The byte datatype is the smallest datatype a pointer can point to
 #[derive(Debug, Clone, Copy)]
@@ -59,6 +62,29 @@ impl Byte {
             bits: array::from_fn(|index| self.bits[index].xor(other.bits[index])),
         }
     }
+
+    /// Adds 2 bytes and the carry bit
+    pub fn add_with_carry(self, right: Self, mut carry: Bit) -> (Self, Bit) {
+        let left: [Bit; 8] = self.into();
+        let right: [Bit; 8] = right.into();
+        (
+            Self::from(array::from_fn(|i| {
+                let result;
+                (result, carry) = full_adder(left[i], right[i], carry);
+                result
+            })),
+            carry,
+        )
+    }
+
+    /// Subtracts one byte from an other and subtracts the carry
+    pub fn sub_with_carry(mut self, right: Self, mut carry: Bit) -> (Self, Bit) {
+        let mut carry_byte = [Bit::Low; 8];
+        carry_byte[0] = carry;
+        (self, carry) = self - Self::from(carry_byte);
+        let (result, carry2) = self - right;
+        (result, carry.or(carry2))
+    }
 }
 
 impl From<u8> for Byte {
@@ -93,14 +119,88 @@ impl From<Byte> for [Bit; 8] {
     }
 }
 
+impl Add for Byte {
+    type Output = (Self, Bit);
+
+    /// Adds 2 bytes without carry bit
+    fn add(self, rhs: Self) -> Self::Output {
+        self.add_with_carry(rhs, Bit::Low)
+    }
+}
+
+impl Sub for Byte {
+    type Output = (Self, Bit);
+
+    /// Subtracts one byte from an other
+    fn sub(self, rhs: Self) -> Self::Output {
+        self.add_with_carry(rhs.not(), Bit::High)
+    }
+}
+
 #[cfg(test)]
 mod tests {
-    use crate::byte::Byte;
+    use crate::{bit::Bit, byte::Byte};
 
     #[test]
     fn byte_conversion() {
         for byte in 0..=u8::MAX {
             assert_eq!(u8::from(Byte::from(byte)), byte);
+        }
+    }
+
+    #[test]
+    fn add_without_carry() {
+        for left in 0..=u8::MAX {
+            for right in 0..=u8::MAX {
+                assert_eq!(
+                    u8::from((Byte::from(left) + Byte::from(right)).0),
+                    left.wrapping_add(right)
+                );
+            }
+        }
+    }
+
+    #[test]
+    fn add_with_carry_test() {
+        for left in 0..=u8::MAX {
+            for right in 0..=u8::MAX {
+                assert_eq!(
+                    u8::from(
+                        Byte::from(left)
+                            .add_with_carry(Byte::from(right), Bit::High)
+                            .0
+                    ),
+                    left.wrapping_add(right).wrapping_add(1)
+                );
+            }
+        }
+    }
+
+    #[test]
+    fn subtract() {
+        for left in 0..=u8::MAX {
+            for right in 0..=u8::MAX {
+                assert_eq!(
+                    u8::from((Byte::from(left) - Byte::from(right)).0),
+                    left.wrapping_sub(right)
+                );
+            }
+        }
+    }
+
+    #[test]
+    fn subtract_with_carry() {
+        for left in 0..=u8::MAX {
+            for right in 0..=u8::MAX {
+                assert_eq!(
+                    u8::from(
+                        Byte::from(left)
+                            .sub_with_carry(Byte::from(right), Bit::High)
+                            .0
+                    ),
+                    left.wrapping_sub(right).wrapping_sub(1)
+                );
+            }
         }
     }
 }
