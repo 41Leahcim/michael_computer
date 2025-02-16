@@ -138,3 +138,24 @@ impl Ram {
         }
     }
 }
+
+/// A simple set of registers
+pub struct Registers {
+    data: [Byte; 4],
+}
+
+impl Registers {
+    /// Loads the value of a register
+    pub fn load(&mut self, select: [Bit; 2]) -> Byte {
+        mux4(self.data, select)
+    }
+
+    /// Stores the new byte in a register
+    pub fn store(&mut self, select: [Bit; 2], value: Byte) {
+        let new_value = dmux4(value, select);
+        let select = bit::dmux4(Bit::High, select);
+        for ((target, value), select) in self.data.iter_mut().zip(new_value).zip(select) {
+            *target = mux(*target, value, select);
+        }
+    }
+}
