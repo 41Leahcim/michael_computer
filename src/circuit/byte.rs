@@ -4,7 +4,7 @@ use core::array;
 
 use crate::{bit::Bit, byte::Byte};
 
-use super::bit::mux as bit_mux;
+use super::bit::{self, mux as bit_mux};
 
 /// Returns the left byte if `select` is `Bit::Low`, returns right byte otherwise
 pub fn mux(left: Byte, right: Byte, select: Bit) -> Byte {
@@ -116,4 +116,25 @@ pub fn dmux256(input: Byte, select: [Bit; 8]) -> [Byte; 256] {
             .and(input[j])
         }))
     })
+}
+
+/// Simple 256 byte RAM memory
+pub struct Ram {
+    data: [Byte; 256],
+}
+
+impl Ram {
+    /// Loads a byte from memory
+    pub fn load(&mut self, address: Byte) -> Byte {
+        mux256(self.data, address.into())
+    }
+
+    /// Stores the new byte in memory
+    pub fn store(&mut self, address: Byte, value: Byte) {
+        let new_value = dmux256(value, address.into());
+        let select = bit::dmux256(Bit::High, address.into());
+        for ((target, value), select) in self.data.iter_mut().zip(new_value).zip(select) {
+            *target = mux(*target, value, select);
+        }
+    }
 }
