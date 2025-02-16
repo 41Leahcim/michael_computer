@@ -116,7 +116,9 @@ pub fn dmux256(input: Bit, select: [Bit; 8]) -> [Bit; 256] {
 
 #[cfg(test)]
 mod tests {
-    use super::{full_adder, half_adder};
+    use core::array;
+
+    use super::{dmux4, full_adder, half_adder, mux4};
     use crate::{
         bit::Bit,
         circuit::bit::{dmux, mux},
@@ -179,10 +181,42 @@ mod tests {
     }
 
     #[test]
+    fn mux4_test() {
+        for i in 0..64 {
+            let input = array::from_fn(|j| Bit::from((i >> j) & 1 == 1));
+            let select = array::from_fn(|j| Bit::from((i >> (j + 4)) & 1 == 1));
+            assert_eq!(
+                mux4(input, select),
+                Bit::from(((i % 16) >> (i / 16)) & 1 == 1)
+            );
+        }
+    }
+
+    #[test]
     fn dmux_test() {
         assert_eq!(dmux(Bit::Low, Bit::Low), (Bit::Low, Bit::Low));
         assert_eq!(dmux(Bit::Low, Bit::High), (Bit::Low, Bit::Low));
         assert_eq!(dmux(Bit::High, Bit::Low), (Bit::High, Bit::Low));
         assert_eq!(dmux(Bit::High, Bit::High), (Bit::Low, Bit::High));
+    }
+
+    #[test]
+    fn dmux4_test() {
+        for i in 0..8 {
+            let input = Bit::from(i & 4 == 4);
+            let select = array::from_fn(|j| Bit::from((i >> j) & 1 == 1));
+            let output = dmux4(input, select);
+            if input == Bit::Low {
+                assert_eq!(output, [Bit::Low; 4]);
+            } else {
+                assert_eq!(output[i % 4], Bit::High);
+                assert!(
+                    output[..i % 4]
+                        .iter()
+                        .chain(&output[i % 4 + 1..])
+                        .all(|bit| bit == &Bit::Low)
+                );
+            }
+        }
     }
 }
