@@ -87,6 +87,70 @@ pub fn mux256(input: [Byte; 256], select: [Bit; 8]) -> Byte {
     )
 }
 
+/// Returns input bit as left bit, if select is `Bit::Low`, returns input bit as right bit
+/// otherwise. Other bit will be `Bit::Low`.
+pub fn dmux(input: Byte, select: Bit) -> (Byte, Byte) {
+    let input: [Bit; 8] = input.into();
+    (
+        Byte::from(array::from_fn(|i| input[i].and(select.not()))),
+        Byte::from(array::from_fn(|i| input[i].and(select))),
+    )
+}
+
+/// Returns input bit as selected bit.
+/// Other bits will be `Bit::Low`.
+/// select[0] is 1, every next index is twice as high as the previous.
+pub fn dmux4(input: Byte, select: [Bit; 2]) -> [Byte; 4] {
+    let input: [Bit; 8] = input.into();
+    array::from_fn(|i| {
+        Byte::from(array::from_fn(|j| {
+            Bit::from(
+                select
+                    .iter()
+                    .enumerate()
+                    .all(|(k, bit)| &Bit::from((i >> k) & 1 == 1) == bit),
+            )
+            .and(input[j])
+        }))
+    })
+}
+
+/// Returns input bit as selected bit.
+/// Other bits will be `Bit::Low`.
+/// select[0] is 1, every next index is twice as high as the previous.
+pub fn dmux16(input: Byte, select: [Bit; 4]) -> [Byte; 16] {
+    let input: [Bit; 8] = input.into();
+    array::from_fn(|i| {
+        Byte::from(array::from_fn(|j| {
+            Bit::from(
+                select
+                    .iter()
+                    .enumerate()
+                    .all(|(k, bit)| &Bit::from((i >> k) & 1 == 1) == bit),
+            )
+            .and(input[j])
+        }))
+    })
+}
+
+/// Returns input bit as selected bit.
+/// Other bits will be `Bit::Low`.
+/// select[0] is 1, every next index is twice as high as the previous.
+pub fn dmux256(input: Byte, select: [Bit; 8]) -> [Byte; 256] {
+    let input: [Bit; 8] = input.into();
+    array::from_fn(|i| {
+        Byte::from(array::from_fn(|j| {
+            Bit::from(
+                select
+                    .iter()
+                    .enumerate()
+                    .all(|(k, bit)| &Bit::from((i >> k) & 1 == 1) == bit),
+            )
+            .and(input[j])
+        }))
+    })
+}
+
 #[cfg(test)]
 mod test {
     use crate::{
