@@ -123,7 +123,20 @@ pub struct Ram {
     data: [Byte; 256],
 }
 
+impl Default for Ram {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl Ram {
+    /// Initializes memory
+    pub fn new() -> Self {
+        Self {
+            data: [Byte::from(0); 256],
+        }
+    }
+
     /// Loads a byte from memory
     pub fn load(&self, address: Byte) -> Byte {
         mux256(self.data, address.into())
