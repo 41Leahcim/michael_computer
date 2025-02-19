@@ -125,7 +125,7 @@ pub struct Ram {
 
 impl Ram {
     /// Loads a byte from memory
-    pub fn load(&mut self, address: Byte) -> Byte {
+    pub fn load(&self, address: Byte) -> Byte {
         mux256(self.data, address.into())
     }
 
@@ -144,9 +144,22 @@ pub struct Registers {
     data: [Byte; 4],
 }
 
+impl Default for Registers {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl Registers {
+    /// Initializes the registers
+    pub fn new() -> Self {
+        Self {
+            data: [Byte::from(0); 4],
+        }
+    }
+
     /// Loads the value of a register
-    pub fn load(&mut self, select: [Bit; 2]) -> Byte {
+    pub fn load(&self, select: [Bit; 2]) -> Byte {
         mux4(self.data, select)
     }
 
