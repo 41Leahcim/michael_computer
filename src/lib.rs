@@ -9,7 +9,7 @@
 
 //! This library contains the implementation of gates, circuits, and datatypes used by the computer
 
-use core::array;
+use core::{array, fmt::Write};
 
 use bit::Bit;
 use mux::byte::{Ram, Registers};
@@ -22,7 +22,7 @@ pub mod mux;
 ///
 /// # Panics
 /// The program panics if an invalid instruction was found or the program ended unexpectedly
-pub fn alu(mut iter: impl Iterator<Item = u8>) {
+pub fn alu(mut iter: impl Iterator<Item = u8>, out: &mut impl Write) {
     let mut registers = Registers::new();
     let mut memory = Ram::new();
 
@@ -42,10 +42,13 @@ pub fn alu(mut iter: impl Iterator<Item = u8>) {
                 );
             }
             8..12 => {
-                memory.store(
-                    iter.next().expect("Unexpected end of program").into(),
-                    registers.load(reg_low),
-                );
+                let address = iter.next().expect("Unexpected end of program");
+                let value = registers.load(reg_low);
+                memory.store(address.into(), value);
+                if address == 255 {
+                    out.write_char(char::from(u8::from(value)))
+                        .expect("Failed to write byte to output");
+                }
             }
             12..16 => registers.store(reg_low, !registers.load(reg_low)),
             16..32 => registers.store(reg_high, registers.load(reg_low)),
@@ -92,5 +95,29 @@ pub fn alu(mut iter: impl Iterator<Item = u8>) {
             }
             192.. => panic!("Invalid instruction: {byte}"),
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use core::array;
+
+    use heapless::String;
+
+    use crate::alu;
+
+    #[test]
+    fn hello_world() {
+        let mut output = String::<20>::new();
+        let expected = b"Hello, world!";
+        let code: [u8; 52] = array::from_fn(|i| match i % 4 {
+            0 => 0,
+            1 => expected[i / 4],
+            2 => 8,
+            3 => 255,
+            _ => unreachable!(),
+        });
+        alu(code.into_iter(), &mut output);
+        assert_eq!(output.as_bytes(), expected);
     }
 }
