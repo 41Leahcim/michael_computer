@@ -1,11 +1,11 @@
-//! Contains the byte datatype with gates.
+//! Muxes interacting on the bytes.
 
 use core::{
     array,
-    ops::{Add, Sub},
+    ops::{Add, BitAnd, BitAndAssign, BitOr, BitOrAssign, BitXor, BitXorAssign, Not, Sub},
 };
 
-use crate::{bit::Bit, circuit::bit::full_adder};
+use crate::{bit::Bit, mux::bit::full_adder};
 
 /// The byte datatype is the smallest datatype a pointer can point to
 #[derive(Debug, Clone, Copy)]
@@ -18,13 +18,6 @@ impl Byte {
     pub fn nand(&self, other: &Self) -> Self {
         Self {
             bits: array::from_fn(|index| self.bits[index].nand(other.bits[index])),
-        }
-    }
-
-    /// Inverts the byte
-    pub fn not(&self) -> Self {
-        Self {
-            bits: array::from_fn(|index| self.bits[index].not()),
         }
     }
 
@@ -134,6 +127,58 @@ impl Sub for Byte {
     /// Subtracts one byte from an other
     fn sub(self, rhs: Self) -> Self::Output {
         self.add_with_carry(rhs.not(), Bit::High)
+    }
+}
+
+impl BitAnd for Byte {
+    type Output = Self;
+
+    fn bitand(self, rhs: Self) -> Self::Output {
+        self.and(&rhs)
+    }
+}
+
+impl BitAndAssign for Byte {
+    fn bitand_assign(&mut self, rhs: Self) {
+        *self = self.and(&rhs);
+    }
+}
+
+impl BitOr for Byte {
+    type Output = Self;
+
+    fn bitor(self, rhs: Self) -> Self::Output {
+        self.or(&rhs)
+    }
+}
+
+impl BitOrAssign for Byte {
+    fn bitor_assign(&mut self, rhs: Self) {
+        *self = self.or(&rhs);
+    }
+}
+
+impl BitXor for Byte {
+    type Output = Self;
+
+    fn bitxor(self, rhs: Self) -> Self::Output {
+        self.xor(&rhs)
+    }
+}
+
+impl BitXorAssign for Byte {
+    fn bitxor_assign(&mut self, rhs: Self) {
+        *self = self.xor(&rhs);
+    }
+}
+
+impl Not for Byte {
+    type Output = Self;
+
+    fn not(self) -> Self::Output {
+        Self {
+            bits: array::from_fn(|index| self.bits[index].not()),
+        }
     }
 }
 

@@ -1,4 +1,4 @@
-//! Circuits interacting on bits
+//! Muxes interacting on bits
 
 use core::array;
 
@@ -121,7 +121,7 @@ mod tests {
     use super::{dmux4, full_adder, half_adder, mux4};
     use crate::{
         bit::Bit,
-        circuit::bit::{dmux, mux},
+        mux::bit::{dmux, mux},
     };
 
     #[test]
