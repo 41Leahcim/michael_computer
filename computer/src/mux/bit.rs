@@ -210,12 +210,10 @@ mod tests {
                 assert_eq!(output, [Bit::Low; 4]);
             } else {
                 assert_eq!(output[i % 4], Bit::High);
-                assert!(
-                    output[..i % 4]
-                        .iter()
-                        .chain(&output[i % 4 + 1..])
-                        .all(|bit| bit == &Bit::Low)
-                );
+                assert!(output[..i % 4]
+                    .iter()
+                    .chain(&output[i % 4 + 1..])
+                    .all(|bit| bit == &Bit::Low));
             }
         }
     }

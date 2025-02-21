@@ -55,7 +55,11 @@ impl Bit {
 
 impl From<bool> for Bit {
     fn from(value: bool) -> Self {
-        if value { Self::High } else { Self::Low }
+        if value {
+            Self::High
+        } else {
+            Self::Low
+        }
     }
 }
 
