@@ -5,7 +5,7 @@ use core::{
     ops::{Add, BitAnd, BitAndAssign, BitOr, BitOrAssign, BitXor, BitXorAssign, Not, Sub},
 };
 
-use crate::{bit::Bit, mux::bit::full_adder};
+use crate::bit::Bit;
 
 /// The byte datatype is the smallest datatype a pointer can point to
 #[derive(Debug, Clone, Copy)]
@@ -63,7 +63,7 @@ impl Byte {
         (
             Self::from(array::from_fn(|i| {
                 let result;
-                (result, carry) = full_adder(left[i], right[i], carry);
+                (result, carry) = left[i].full_adder(right[i], carry);
                 result
             })),
             carry,

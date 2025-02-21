@@ -4,19 +4,6 @@ use core::array;
 
 use crate::bit::Bit;
 
-/// Adds 2 bits and returns a sum and a carry bit
-pub const fn half_adder(left: Bit, right: Bit) -> (Bit, Bit) {
-    (left.xor(right), left.and(right))
-}
-
-/// Adds 3 bits (one of which a carry bit), and returns a sum and a new carry bit
-pub const fn full_adder(left: Bit, right: Bit, carry: Bit) -> (Bit, Bit) {
-    (
-        left.xor(right).xor(carry),
-        left.xor(right).and(carry).or(left.and(right)),
-    )
-}
-
 /// Returns the left bit if `select` is `Bit::Low`, returns right bit otherwise
 pub const fn mux(left: Bit, right: Bit, select: Bit) -> Bit {
     left.and(select.not()).or(right.and(select))
@@ -118,55 +105,11 @@ pub fn dmux256(input: Bit, select: [Bit; 8]) -> [Bit; 256] {
 mod tests {
     use core::array;
 
-    use super::{dmux4, full_adder, half_adder, mux4};
+    use super::{dmux4, mux4};
     use crate::{
         bit::Bit,
         mux::bit::{dmux, mux},
     };
-
-    #[test]
-    fn half_adder_test() {
-        assert_eq!(half_adder(Bit::Low, Bit::Low), (Bit::Low, Bit::Low));
-        assert_eq!(half_adder(Bit::Low, Bit::High), (Bit::High, Bit::Low));
-        assert_eq!(half_adder(Bit::High, Bit::Low), (Bit::High, Bit::Low));
-        assert_eq!(half_adder(Bit::High, Bit::High), (Bit::Low, Bit::High));
-    }
-
-    #[test]
-    fn full_adder_test() {
-        assert_eq!(
-            full_adder(Bit::Low, Bit::Low, Bit::Low),
-            (Bit::Low, Bit::Low)
-        );
-        assert_eq!(
-            full_adder(Bit::Low, Bit::Low, Bit::High),
-            (Bit::High, Bit::Low)
-        );
-        assert_eq!(
-            full_adder(Bit::Low, Bit::High, Bit::Low),
-            (Bit::High, Bit::Low)
-        );
-        assert_eq!(
-            full_adder(Bit::Low, Bit::High, Bit::High),
-            (Bit::Low, Bit::High)
-        );
-        assert_eq!(
-            full_adder(Bit::High, Bit::Low, Bit::Low),
-            (Bit::High, Bit::Low)
-        );
-        assert_eq!(
-            full_adder(Bit::High, Bit::Low, Bit::High),
-            (Bit::Low, Bit::High)
-        );
-        assert_eq!(
-            full_adder(Bit::High, Bit::High, Bit::Low),
-            (Bit::Low, Bit::High)
-        );
-        assert_eq!(
-            full_adder(Bit::High, Bit::High, Bit::High),
-            (Bit::High, Bit::High)
-        );
-    }
 
     #[test]
     fn mux_test() {

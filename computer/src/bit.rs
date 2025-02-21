@@ -51,6 +51,19 @@ impl Bit {
     pub const fn xor(self, other: Self) -> Self {
         self.xnor(other).not()
     }
+
+    /// Adds 2 bits and returns a sum and a carry bit
+    pub const fn half_adder(self, right: Self) -> (Self, Self) {
+        (self.xor(right), self.and(right))
+    }
+
+    /// Adds 3 bits (one of which a carry bit), and returns a sum and a new carry bit
+    pub const fn full_adder(self, right: Self, carry: Self) -> (Self, Self) {
+        (
+            self.xor(right).xor(carry),
+            self.or(right).and(carry).or(self.and(right)),
+        )
+    }
 }
 
 impl From<bool> for Bit {
@@ -175,5 +188,49 @@ mod tests {
         assert!(!bool::from(Bit::Low.xnor(Bit::High)));
         assert!(!bool::from(Bit::High.xnor(Bit::Low)));
         assert!(bool::from(Bit::High.xnor(Bit::High)));
+    }
+
+    #[test]
+    fn half_adder_test() {
+        assert_eq!(Bit::Low.half_adder(Bit::Low), (Bit::Low, Bit::Low));
+        assert_eq!(Bit::Low.half_adder(Bit::High), (Bit::High, Bit::Low));
+        assert_eq!(Bit::High.half_adder(Bit::Low), (Bit::High, Bit::Low));
+        assert_eq!(Bit::High.half_adder(Bit::High), (Bit::Low, Bit::High));
+    }
+
+    #[test]
+    fn full_adder_test() {
+        assert_eq!(
+            Bit::Low.full_adder(Bit::Low, Bit::Low),
+            (Bit::Low, Bit::Low)
+        );
+        assert_eq!(
+            Bit::Low.full_adder(Bit::Low, Bit::High),
+            (Bit::High, Bit::Low)
+        );
+        assert_eq!(
+            Bit::Low.full_adder(Bit::High, Bit::Low),
+            (Bit::High, Bit::Low)
+        );
+        assert_eq!(
+            Bit::Low.full_adder(Bit::High, Bit::High),
+            (Bit::Low, Bit::High)
+        );
+        assert_eq!(
+            Bit::High.full_adder(Bit::Low, Bit::Low),
+            (Bit::High, Bit::Low)
+        );
+        assert_eq!(
+            Bit::High.full_adder(Bit::Low, Bit::High),
+            (Bit::Low, Bit::High)
+        );
+        assert_eq!(
+            Bit::High.full_adder(Bit::High, Bit::Low),
+            (Bit::Low, Bit::High)
+        );
+        assert_eq!(
+            Bit::High.full_adder(Bit::High, Bit::High),
+            (Bit::High, Bit::High)
+        );
     }
 }
